@@ -17,9 +17,10 @@ var on = 180;
 
 client.on('connect', function () {
   client.subscribe('LED')
+  console.log("conectado");
   //vincular código a ser rodado quando a comunicação com a placa começar
   board.on("ready", function () {
-
+    console.log("placa ok");
     // vincular uma variável do tipo Led que controla o pino 13
     const led = new five.Led(10);
     const led2 = new five.Led(11);
@@ -27,42 +28,13 @@ client.on('connect', function () {
     const botao2 = new five.Button(4);
     const servo = new five.Servo(9);
     const relay = new five.Relay(12);
-    client.on('message', function (topic, message) {
-      console.log(message.toString())
-      switch (message.toString()) {
-        case "on":
-          led.on();
-          led2.on();
-          break;
-          case "off":
-          led.off();
-        led2.off();
-          break;
-          case "abrir":
-         servo.to(180);
-        led.on();
-        led2.on();
-        relay.close();
-          break;
-          case "fechar":
-          servo.to(90);
-        led.off();
-        led2.off();
-        relay.open();
-          break;
-      }
-        botao.on("down", function () {
+
+    botao.on("down", function () {
       led.stop();
       led2.stop();
       led.toggle();
       led2.toggle();
-      if(message.toString() == "on"){
-        client.publish('LED', 'off');
-      };
-      if(message.toString() == "off"){
-        client.publish('LED', 'on');
-      };
-      
+
     });
     botao.on("hold", function () {
       led.pulse(500);
@@ -83,6 +55,31 @@ client.on('connect', function () {
         on = 90
       }
     });
+
+    client.on('message', function (topic, message) {
+      console.log(message.toString())
+      switch (message.toString()) {
+        case "on":
+          led.on();
+          led2.on();
+          break;
+        case "off":
+          led.off();
+          led2.off();
+          break;
+        case "abrir":
+          servo.to(180);
+          led.on();
+          led2.on();
+          relay.close();
+          break;
+        case "fechar":
+          servo.to(90);
+          led.off();
+          led2.off();
+          relay.open();
+          break;
+      }
     });
   });
 });
